@@ -11,6 +11,11 @@
       "src": "/predict",
       "methods": ["POST"],
       "dest": "app.py"
+    },
+    {
+      "src": "/",
+      "methods": ["GET"],
+      "dest": "app.py"
     }
   ]
 }
