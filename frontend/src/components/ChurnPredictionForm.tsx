@@ -67,61 +67,53 @@ const ChurnPredictionForm = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    
-    // Simulate API call delay (like your Django backend)
-    setTimeout(() => {
-      const prediction = mockChurnPrediction();
-      setPrediction(prediction.prediction);
-      setProbability(`Confidence: ${prediction.confidence}%`);
-      setIsLoading(false);
-    }, 2000);
-  };
 
-  // Mock prediction function that simulates your Django ML model
-  const mockChurnPrediction = () => {
-    // Convert string values to appropriate types for calculations
-    const monthlyCharges = parseFloat(formData.monthlyCharges) || 0;
-    const totalCharges = parseFloat(formData.totalCharges) || 0;
-    const tenure = parseInt(formData.tenure) || 0;
-    const seniorCitizen = parseInt(formData.seniorCitizen) || 0;
-    
-    // Simulate the logic from your Django backend
-    const factors = {
-      highCharges: monthlyCharges > 70,
-      shortTenure: tenure < 12,
-      monthToMonth: formData.contract === "Month-to-month",
-      seniorCitizen: seniorCitizen === 1,
-      noPartner: formData.partner === "No",
-      electronicCheck: formData.paymentMethod === "Electronic check",
-      highTotalCharges: totalCharges > 2000,
-      noInternetServices: formData.onlineSecurity === "No" && formData.onlineBackup === "No"
-    };
-    
-    // Calculate churn probability based on factors (similar to your ML model)
-    let churnScore = 0.3; // base probability
-    
-    if (factors.highCharges) churnScore += 0.2;
-    if (factors.shortTenure) churnScore += 0.25;
-    if (factors.monthToMonth) churnScore += 0.3;
-    if (factors.seniorCitizen) churnScore += 0.1;
-    if (factors.noPartner) churnScore += 0.15;
-    if (factors.electronicCheck) churnScore += 0.1;
-    if (factors.noInternetServices) churnScore += 0.1;
-    if (factors.highTotalCharges) churnScore -= 0.1; // loyal customers
-    
-    // Add some randomness to simulate model uncertainty
-    churnScore += (Math.random() - 0.5) * 0.2;
-    churnScore = Math.max(0, Math.min(1, churnScore));
-    
-    const willChurn = churnScore > 0.5;
-    const confidence = Math.round(willChurn ? churnScore * 100 : (1 - churnScore) * 100);
-    
-    return {
-      prediction: willChurn 
-        ? "This customer is likely to be churned!!" 
-        : "This customer is likely to continue!!",
-      confidence: confidence
-    };
+    try {
+      const response = await fetch("http://localhost:5000/predict", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          SeniorCitizen: formData.seniorCitizen,
+          MonthlyCharges: formData.monthlyCharges,
+          TotalCharges: formData.totalCharges,
+          gender: formData.gender,
+          Partner: formData.partner,
+          Dependents: formData.dependents,
+          PhoneService: formData.phoneService,
+          MultipleLines: formData.multipleLines,
+          InternetService: formData.internetService,
+          OnlineSecurity: formData.onlineSecurity,
+          OnlineBackup: formData.onlineBackup,
+          DeviceProtection: formData.deviceProtection,
+          TechSupport: formData.techSupport,
+          StreamingTV: formData.streamingTV,
+          StreamingMovies: formData.streamingMovies,
+          Contract: formData.contract,
+          PaperlessBilling: formData.paperlessBilling,
+          PaymentMethod: formData.paymentMethod,
+          tenure: formData.tenure
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error("Something went wrong with the API request");
+      }
+
+      const result = await response.json();
+
+      console.log(result)
+
+      setPrediction(result.result);
+      setProbability(result.confidence);
+    } catch (error) {
+      console.error("Prediction error:", error);
+      setPrediction("Error: Unable to get prediction");
+      setProbability("");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const yesNoOptions = ['Yes', 'No'];
@@ -445,10 +437,10 @@ const ChurnPredictionForm = () => {
                     </div>
                   </div>
 
-                  <Button 
-                    type="submit" 
-                    variant="professional" 
-                    size="lg" 
+                  <Button
+                    type="submit"
+                    variant="professional"
+                    size="lg"
                     className="w-full"
                     disabled={isLoading}
                   >
@@ -473,18 +465,18 @@ const ChurnPredictionForm = () => {
                   <>
                     <div className="p-4 bg-accent rounded-lg">
                       <h4 className="font-semibold text-accent-foreground mb-2">Churn Prediction</h4>
-                      <Textarea 
-                        value={prediction} 
-                        readOnly 
+                      <Textarea
+                        value={prediction}
+                        readOnly
                         className="resize-none border-0 bg-transparent p-0 focus-visible:ring-0"
                         rows={3}
                       />
                     </div>
                     <div className="p-4 bg-muted rounded-lg">
                       <h4 className="font-semibold text-muted-foreground mb-2">Risk Probability</h4>
-                      <Textarea 
-                        value={probability} 
-                        readOnly 
+                      <Textarea
+                        value={probability}
+                        readOnly
                         className="resize-none border-0 bg-transparent p-0 focus-visible:ring-0"
                         rows={2}
                       />
@@ -541,25 +533,25 @@ const ChurnPredictionForm = () => {
                   </p>
                   <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
                     <div className="bg-card rounded-lg p-4 border border-border hover:shadow-lg transition-shadow">
-                      <img 
-                        src="/lovable-uploads/264c39a1-99e8-4873-88ae-affc251b9a9e.png" 
-                        alt="Tenure Churning Density" 
+                      <img
+                        src="/lovable-uploads/264c39a1-99e8-4873-88ae-affc251b9a9e.png"
+                        alt="Tenure Churning Density"
                         className="w-full h-auto rounded-md"
                       />
                       <p className="text-sm text-muted-foreground mt-2 text-center font-medium">Tenure Distribution</p>
                     </div>
                     <div className="bg-card rounded-lg p-4 border border-border hover:shadow-lg transition-shadow">
-                      <img 
-                        src="/lovable-uploads/29979511-674f-49c3-bccd-ac11c3d3be13.png" 
-                        alt="Total Charges Churning Density" 
+                      <img
+                        src="/lovable-uploads/29979511-674f-49c3-bccd-ac11c3d3be13.png"
+                        alt="Total Charges Churning Density"
                         className="w-full h-auto rounded-md"
                       />
                       <p className="text-sm text-muted-foreground mt-2 text-center font-medium">Total Charges Distribution</p>
                     </div>
                     <div className="bg-card rounded-lg p-4 border border-border hover:shadow-lg transition-shadow">
-                      <img 
-                        src="/lovable-uploads/5b37a05b-e6e4-4783-b789-b761fb1fe0ac.png" 
-                        alt="Monthly Charges Churning Density" 
+                      <img
+                        src="/lovable-uploads/5b37a05b-e6e4-4783-b789-b761fb1fe0ac.png"
+                        alt="Monthly Charges Churning Density"
                         className="w-full h-auto rounded-md"
                       />
                       <p className="text-sm text-muted-foreground mt-2 text-center font-medium">Monthly Charges Distribution</p>
@@ -578,25 +570,25 @@ const ChurnPredictionForm = () => {
                   </p>
                   <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
                     <div className="bg-card rounded-lg p-4 border border-border hover:shadow-lg transition-shadow">
-                      <img 
-                        src="/lovable-uploads/c97ea5f2-2b7f-40d6-81fc-831dd0fd178f.png" 
-                        alt="Contract Distribution for Churned Customers" 
+                      <img
+                        src="/lovable-uploads/c97ea5f2-2b7f-40d6-81fc-831dd0fd178f.png"
+                        alt="Contract Distribution for Churned Customers"
                         className="w-full h-auto rounded-md"
                       />
                       <p className="text-sm text-muted-foreground mt-2 text-center font-medium">Contract vs Churn</p>
                     </div>
                     <div className="bg-card rounded-lg p-4 border border-border hover:shadow-lg transition-shadow">
-                      <img 
-                        src="/lovable-uploads/b45b5fa4-946a-46fd-9c55-1af37c8717ac.png" 
-                        alt="Payment Method Distribution for Churned Customers" 
+                      <img
+                        src="/lovable-uploads/b45b5fa4-946a-46fd-9c55-1af37c8717ac.png"
+                        alt="Payment Method Distribution for Churned Customers"
                         className="w-full h-auto rounded-md"
                       />
                       <p className="text-sm text-muted-foreground mt-2 text-center font-medium">Payment Method vs Churn</p>
                     </div>
                     <div className="bg-card rounded-lg p-4 border border-border hover:shadow-lg transition-shadow">
-                      <img 
-                        src="/lovable-uploads/0e34a388-e466-42a6-85cb-5a2950117390.png" 
-                        alt="Senior Citizen Distribution for Churned Customers" 
+                      <img
+                        src="/lovable-uploads/0e34a388-e466-42a6-85cb-5a2950117390.png"
+                        alt="Senior Citizen Distribution for Churned Customers"
                         className="w-full h-auto rounded-md"
                       />
                       <p className="text-sm text-muted-foreground mt-2 text-center font-medium">Senior Citizen vs Churn</p>
