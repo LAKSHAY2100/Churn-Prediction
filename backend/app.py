@@ -87,4 +87,4 @@ def api_predict():
         o2 = f"Confidence: {probablity[0]*100:.2f}"
     return {"success":True,"result": o1, "confidence": o2}
     
-app.run()
+# app.run()
