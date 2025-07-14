@@ -6,6 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { BarChart3, Brain, TrendingUp, Users } from 'lucide-react';
 
 interface FormData {
@@ -56,6 +57,7 @@ const ChurnPredictionForm = () => {
   const [prediction, setPrediction] = useState<string>('');
   const [probability, setProbability] = useState<string>('');
   const [isLoading, setIsLoading] = useState(false);
+  const [selectedImage, setSelectedImage] = useState<{ src: string; title: string } | null>(null);
 
   const handleInputChange = (field: keyof FormData, value: string) => {
     setFormData(prev => ({
@@ -151,309 +153,307 @@ const ChurnPredictionForm = () => {
           </div>
         </div>
 
-        <div className="grid lg:grid-cols-3 gap-8">
-          {/* Form Section */}
-          <div className="lg:col-span-2">
-            <Card className="shadow-card animate-slide-in">
-              <CardHeader>
-                <CardTitle className="text-2xl text-foreground">Customer Information</CardTitle>
-                <CardDescription>
-                  Enter customer details to generate churn prediction analysis
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <form onSubmit={handleSubmit} className="space-y-8">
-                  {/* Demographics Section */}
-                  <div className="space-y-4">
-                    <h3 className="text-lg font-semibold text-foreground border-b border-border pb-2">
-                      Demographics
-                    </h3>
-                    <div className="grid md:grid-cols-2 gap-4">
-                      <div className="space-y-2">
-                        <Label htmlFor="gender">Gender</Label>
-                        <Select onValueChange={(value) => handleInputChange('gender', value)}>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select gender" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="Male">Male</SelectItem>
-                            <SelectItem value="Female">Female</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="seniorCitizen">Senior Citizen</Label>
-                        <Select onValueChange={(value) => handleInputChange('seniorCitizen', value)}>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Senior citizen status" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="0">No</SelectItem>
-                            <SelectItem value="1">Yes</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="partner">Partner</Label>
-                        <Select onValueChange={(value) => handleInputChange('partner', value)}>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Has partner" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {yesNoOptions.map(option => (
-                              <SelectItem key={option} value={option}>{option}</SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="dependents">Dependents</Label>
-                        <Select onValueChange={(value) => handleInputChange('dependents', value)}>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Has dependents" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {yesNoOptions.map(option => (
-                              <SelectItem key={option} value={option}>{option}</SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
-                    </div>
+        {/* Form Section */}
+        <Card className="shadow-card animate-slide-in">
+          <CardHeader>
+            <CardTitle className="text-2xl text-foreground">Customer Information</CardTitle>
+            <CardDescription>
+              Enter customer details to generate churn prediction analysis
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <form onSubmit={handleSubmit} className="space-y-8">
+              {/* Demographics Section */}
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold text-foreground border-b border-border pb-2">
+                  Demographics
+                </h3>
+                <div className="grid md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="gender">Gender</Label>
+                    <Select onValueChange={(value) => handleInputChange('gender', value)}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select gender" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="Male">Male</SelectItem>
+                        <SelectItem value="Female">Female</SelectItem>
+                      </SelectContent>
+                    </Select>
                   </div>
-
-                  {/* Financial Information */}
-                  <div className="space-y-4">
-                    <h3 className="text-lg font-semibold text-foreground border-b border-border pb-2">
-                      Financial Information
-                    </h3>
-                    <div className="grid md:grid-cols-3 gap-4">
-                      <div className="space-y-2">
-                        <Label htmlFor="tenure">Tenure (months)</Label>
-                        <Input
-                          id="tenure"
-                          type="number"
-                          placeholder="0-72"
-                          value={formData.tenure}
-                          onChange={(e) => handleInputChange('tenure', e.target.value)}
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="monthlyCharges">Monthly Charges ($)</Label>
-                        <Input
-                          id="monthlyCharges"
-                          type="number"
-                          step="0.01"
-                          placeholder="0.00"
-                          value={formData.monthlyCharges}
-                          onChange={(e) => handleInputChange('monthlyCharges', e.target.value)}
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="totalCharges">Total Charges ($)</Label>
-                        <Input
-                          id="totalCharges"
-                          type="number"
-                          step="0.01"
-                          placeholder="0.00"
-                          value={formData.totalCharges}
-                          onChange={(e) => handleInputChange('totalCharges', e.target.value)}
-                        />
-                      </div>
-                    </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="seniorCitizen">Senior Citizen</Label>
+                    <Select onValueChange={(value) => handleInputChange('seniorCitizen', value)}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Senior citizen status" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="0">No</SelectItem>
+                        <SelectItem value="1">Yes</SelectItem>
+                      </SelectContent>
+                    </Select>
                   </div>
-
-                  {/* Services Section */}
-                  <div className="space-y-4">
-                    <h3 className="text-lg font-semibold text-foreground border-b border-border pb-2">
-                      Services
-                    </h3>
-                    <div className="grid md:grid-cols-2 gap-4">
-                      <div className="space-y-2">
-                        <Label htmlFor="phoneService">Phone Service</Label>
-                        <Select onValueChange={(value) => handleInputChange('phoneService', value)}>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Phone service" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {yesNoOptions.map(option => (
-                              <SelectItem key={option} value={option}>{option}</SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="multipleLines">Multiple Lines</Label>
-                        <Select onValueChange={(value) => handleInputChange('multipleLines', value)}>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Multiple lines" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="Yes">Yes</SelectItem>
-                            <SelectItem value="No">No</SelectItem>
-                            <SelectItem value="No phone service">No phone service</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="internetService">Internet Service</Label>
-                        <Select onValueChange={(value) => handleInputChange('internetService', value)}>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Internet service type" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {internetOptions.map(option => (
-                              <SelectItem key={option} value={option}>{option}</SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="onlineSecurity">Online Security</Label>
-                        <Select onValueChange={(value) => handleInputChange('onlineSecurity', value)}>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Online security" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="Yes">Yes</SelectItem>
-                            <SelectItem value="No">No</SelectItem>
-                            <SelectItem value="No internet service">No internet service</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="onlineBackup">Online Backup</Label>
-                        <Select onValueChange={(value) => handleInputChange('onlineBackup', value)}>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Online backup" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="Yes">Yes</SelectItem>
-                            <SelectItem value="No">No</SelectItem>
-                            <SelectItem value="No internet service">No internet service</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="deviceProtection">Device Protection</Label>
-                        <Select onValueChange={(value) => handleInputChange('deviceProtection', value)}>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Device protection" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="Yes">Yes</SelectItem>
-                            <SelectItem value="No">No</SelectItem>
-                            <SelectItem value="No internet service">No internet service</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="techSupport">Tech Support</Label>
-                        <Select onValueChange={(value) => handleInputChange('techSupport', value)}>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Tech support" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="Yes">Yes</SelectItem>
-                            <SelectItem value="No">No</SelectItem>
-                            <SelectItem value="No internet service">No internet service</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="streamingTV">Streaming TV</Label>
-                        <Select onValueChange={(value) => handleInputChange('streamingTV', value)}>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Streaming TV" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="Yes">Yes</SelectItem>
-                            <SelectItem value="No">No</SelectItem>
-                            <SelectItem value="No internet service">No internet service</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="streamingMovies">Streaming Movies</Label>
-                        <Select onValueChange={(value) => handleInputChange('streamingMovies', value)}>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Streaming movies" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="Yes">Yes</SelectItem>
-                            <SelectItem value="No">No</SelectItem>
-                            <SelectItem value="No internet service">No internet service</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-                    </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="partner">Partner</Label>
+                    <Select onValueChange={(value) => handleInputChange('partner', value)}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Has partner" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {yesNoOptions.map(option => (
+                          <SelectItem key={option} value={option}>{option}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   </div>
-
-                  {/* Contract & Payment */}
-                  <div className="space-y-4">
-                    <h3 className="text-lg font-semibold text-foreground border-b border-border pb-2">
-                      Contract & Billing
-                    </h3>
-                    <div className="grid md:grid-cols-2 gap-4">
-                      <div className="space-y-2">
-                        <Label htmlFor="contract">Contract</Label>
-                        <Select onValueChange={(value) => handleInputChange('contract', value)}>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Contract type" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {contractOptions.map(option => (
-                              <SelectItem key={option} value={option}>{option}</SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="paperlessBilling">Paperless Billing</Label>
-                        <Select onValueChange={(value) => handleInputChange('paperlessBilling', value)}>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Paperless billing" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {yesNoOptions.map(option => (
-                              <SelectItem key={option} value={option}>{option}</SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
-                      <div className="space-y-2 md:col-span-2">
-                        <Label htmlFor="paymentMethod">Payment Method</Label>
-                        <Select onValueChange={(value) => handleInputChange('paymentMethod', value)}>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Payment method" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {paymentOptions.map(option => (
-                              <SelectItem key={option} value={option}>{option}</SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
-                    </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="dependents">Dependents</Label>
+                    <Select onValueChange={(value) => handleInputChange('dependents', value)}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Has dependents" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {yesNoOptions.map(option => (
+                          <SelectItem key={option} value={option}>{option}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   </div>
+                </div>
+              </div>
 
-                  <Button
-                    type="submit"
-                    variant="professional"
-                    size="lg"
-                    className="w-full"
-                    disabled={isLoading}
-                  >
-                    {isLoading ? 'Analyzing...' : 'Generate Prediction'}
-                  </Button>
-                </form>
-              </CardContent>
-            </Card>
-          </div>
+              {/* Financial Information */}
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold text-foreground border-b border-border pb-2">
+                  Financial Information
+                </h3>
+                <div className="grid md:grid-cols-3 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="tenure">Tenure (months)</Label>
+                    <Input
+                      id="tenure"
+                      type="number"
+                      placeholder="0-72"
+                      value={formData.tenure}
+                      onChange={(e) => handleInputChange('tenure', e.target.value)}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="monthlyCharges">Monthly Charges ($)</Label>
+                    <Input
+                      id="monthlyCharges"
+                      type="number"
+                      step="0.01"
+                      placeholder="0.00"
+                      value={formData.monthlyCharges}
+                      onChange={(e) => handleInputChange('monthlyCharges', e.target.value)}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="totalCharges">Total Charges ($)</Label>
+                    <Input
+                      id="totalCharges"
+                      type="number"
+                      step="0.01"
+                      placeholder="0.00"
+                      value={formData.totalCharges}
+                      onChange={(e) => handleInputChange('totalCharges', e.target.value)}
+                    />
+                  </div>
+                </div>
+              </div>
 
-          {/* Results Section */}
-          <div className="space-y-6">
-            <Card className="shadow-card animate-slide-in">
+              {/* Services Section */}
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold text-foreground border-b border-border pb-2">
+                  Services
+                </h3>
+                <div className="grid md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="phoneService">Phone Service</Label>
+                    <Select onValueChange={(value) => handleInputChange('phoneService', value)}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Phone service" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {yesNoOptions.map(option => (
+                          <SelectItem key={option} value={option}>{option}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="multipleLines">Multiple Lines</Label>
+                    <Select onValueChange={(value) => handleInputChange('multipleLines', value)}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Multiple lines" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="Yes">Yes</SelectItem>
+                        <SelectItem value="No">No</SelectItem>
+                        <SelectItem value="No phone service">No phone service</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="internetService">Internet Service</Label>
+                    <Select onValueChange={(value) => handleInputChange('internetService', value)}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Internet service type" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {internetOptions.map(option => (
+                          <SelectItem key={option} value={option}>{option}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="onlineSecurity">Online Security</Label>
+                    <Select onValueChange={(value) => handleInputChange('onlineSecurity', value)}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Online security" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="Yes">Yes</SelectItem>
+                        <SelectItem value="No">No</SelectItem>
+                        <SelectItem value="No internet service">No internet service</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="onlineBackup">Online Backup</Label>
+                    <Select onValueChange={(value) => handleInputChange('onlineBackup', value)}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Online backup" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="Yes">Yes</SelectItem>
+                        <SelectItem value="No">No</SelectItem>
+                        <SelectItem value="No internet service">No internet service</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="deviceProtection">Device Protection</Label>
+                    <Select onValueChange={(value) => handleInputChange('deviceProtection', value)}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Device protection" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="Yes">Yes</SelectItem>
+                        <SelectItem value="No">No</SelectItem>
+                        <SelectItem value="No internet service">No internet service</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="techSupport">Tech Support</Label>
+                    <Select onValueChange={(value) => handleInputChange('techSupport', value)}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Tech support" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="Yes">Yes</SelectItem>
+                        <SelectItem value="No">No</SelectItem>
+                        <SelectItem value="No internet service">No internet service</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="streamingTV">Streaming TV</Label>
+                    <Select onValueChange={(value) => handleInputChange('streamingTV', value)}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Streaming TV" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="Yes">Yes</SelectItem>
+                        <SelectItem value="No">No</SelectItem>
+                        <SelectItem value="No internet service">No internet service</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="streamingMovies">Streaming Movies</Label>
+                    <Select onValueChange={(value) => handleInputChange('streamingMovies', value)}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Streaming movies" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="Yes">Yes</SelectItem>
+                        <SelectItem value="No">No</SelectItem>
+                        <SelectItem value="No internet service">No internet service</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+              </div>
+
+              {/* Contract & Payment */}
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold text-foreground border-b border-border pb-2">
+                  Contract & Billing
+                </h3>
+                <div className="grid md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="contract">Contract</Label>
+                    <Select onValueChange={(value) => handleInputChange('contract', value)}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Contract type" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {contractOptions.map(option => (
+                          <SelectItem key={option} value={option}>{option}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="paperlessBilling">Paperless Billing</Label>
+                    <Select onValueChange={(value) => handleInputChange('paperlessBilling', value)}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Paperless billing" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {yesNoOptions.map(option => (
+                          <SelectItem key={option} value={option}>{option}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2 md:col-span-2">
+                    <Label htmlFor="paymentMethod">Payment Method</Label>
+                    <Select onValueChange={(value) => handleInputChange('paymentMethod', value)}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Payment method" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {paymentOptions.map(option => (
+                          <SelectItem key={option} value={option}>{option}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+              </div>
+
+              <Button
+                type="submit"
+                variant="professional"
+                size="lg"
+                className="w-full"
+                disabled={isLoading}
+              >
+                {isLoading ? 'Analyzing...' : 'Generate Prediction'}
+              </Button>
+            </form>
+          </CardContent>
+        </Card>
+
+        {/* Prediction Results Section - Now below the form */}
+        {prediction && (
+          <div className="mt-8 animate-fade-in">
+            <Card className="shadow-card">
               <CardHeader>
                 <CardTitle className="text-xl text-foreground">Prediction Results</CardTitle>
                 <CardDescription>
@@ -461,55 +461,30 @@ const ChurnPredictionForm = () => {
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
-                {prediction ? (
-                  <>
-                    <div className="p-4 bg-accent rounded-lg">
-                      <h4 className="font-semibold text-accent-foreground mb-2">Churn Prediction</h4>
-                      <Textarea
-                        value={prediction}
-                        readOnly
-                        className="resize-none border-0 bg-transparent p-0 focus-visible:ring-0"
-                        rows={3}
-                      />
-                    </div>
-                    <div className="p-4 bg-muted rounded-lg">
-                      <h4 className="font-semibold text-muted-foreground mb-2">Risk Probability</h4>
-                      <Textarea
-                        value={probability}
-                        readOnly
-                        className="resize-none border-0 bg-transparent p-0 focus-visible:ring-0"
-                        rows={2}
-                      />
-                    </div>
-                  </>
-                ) : (
-                  <div className="text-center py-8">
-                    <Brain className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                    <p className="text-muted-foreground">
-                      Fill out the form and click "Generate Prediction" to see results
-                    </p>
+                <div className="grid md:grid-cols-2 gap-4">
+                  <div className="p-4 bg-accent rounded-lg">
+                    <h4 className="font-semibold text-accent-foreground mb-2">Churn Prediction</h4>
+                    <Textarea
+                      value={prediction}
+                      readOnly
+                      className="resize-none border-0 bg-transparent p-0 focus-visible:ring-0"
+                      rows={3}
+                    />
                   </div>
-                )}
-              </CardContent>
-            </Card>
-
-            {/* Info Card */}
-            <Card className="shadow-card animate-slide-in">
-              <CardHeader>
-                <CardTitle className="text-lg text-foreground">About This Model</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-3 text-sm text-muted-foreground">
-                <p>This machine learning model analyzes customer behavior patterns to predict churn probability.</p>
-                <ul className="space-y-1 ml-4">
-                  <li>• Trained on telecommunication industry data</li>
-                  <li>• 95%+ accuracy in churn prediction</li>
-                  <li>• Real-time analysis and insights</li>
-                  <li>• Identifies key risk factors</li>
-                </ul>
+                  <div className="p-4 bg-muted rounded-lg">
+                    <h4 className="font-semibold text-muted-foreground mb-2">Risk Probability</h4>
+                    <Textarea
+                      value={probability}
+                      readOnly
+                      className="resize-none border-0 bg-transparent p-0 focus-visible:ring-0"
+                      rows={2}
+                    />
+                  </div>
+                </div>
               </CardContent>
             </Card>
           </div>
-        </div>
+        )}
 
         {/* Data Analysis Section - Only show when prediction is available */}
         {prediction && (
@@ -532,27 +507,36 @@ const ChurnPredictionForm = () => {
                     These density plots show the distribution patterns of key variables for churned vs non-churned customers.
                   </p>
                   <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    <div className="bg-card rounded-lg p-4 border border-border hover:shadow-lg transition-shadow">
-                      <img
-                        src="/lovable-uploads/264c39a1-99e8-4873-88ae-affc251b9a9e.png"
-                        alt="Tenure Churning Density"
-                        className="w-full h-auto rounded-md"
+                    <div 
+                      className="bg-card rounded-lg p-4 border border-border hover:shadow-lg transition-shadow cursor-pointer"
+                      onClick={() => setSelectedImage({ src: "/lovable-uploads/264c39a1-99e8-4873-88ae-affc251b9a9e.png", title: "Tenure Distribution" })}
+                    >
+                      <img 
+                        src="/lovable-uploads/264c39a1-99e8-4873-88ae-affc251b9a9e.png" 
+                        alt="Tenure Churning Density" 
+                        className="w-full h-auto rounded-md hover:scale-110 transition-transform duration-300"
                       />
                       <p className="text-sm text-muted-foreground mt-2 text-center font-medium">Tenure Distribution</p>
                     </div>
-                    <div className="bg-card rounded-lg p-4 border border-border hover:shadow-lg transition-shadow">
-                      <img
-                        src="/lovable-uploads/29979511-674f-49c3-bccd-ac11c3d3be13.png"
-                        alt="Total Charges Churning Density"
-                        className="w-full h-auto rounded-md"
+                    <div 
+                      className="bg-card rounded-lg p-4 border border-border hover:shadow-lg transition-shadow cursor-pointer"
+                      onClick={() => setSelectedImage({ src: "/lovable-uploads/29979511-674f-49c3-bccd-ac11c3d3be13.png", title: "Total Charges Distribution" })}
+                    >
+                      <img 
+                        src="/lovable-uploads/29979511-674f-49c3-bccd-ac11c3d3be13.png" 
+                        alt="Total Charges Churning Density" 
+                        className="w-full h-auto rounded-md hover:scale-110 transition-transform duration-300"
                       />
                       <p className="text-sm text-muted-foreground mt-2 text-center font-medium">Total Charges Distribution</p>
                     </div>
-                    <div className="bg-card rounded-lg p-4 border border-border hover:shadow-lg transition-shadow">
-                      <img
-                        src="/lovable-uploads/5b37a05b-e6e4-4783-b789-b761fb1fe0ac.png"
-                        alt="Monthly Charges Churning Density"
-                        className="w-full h-auto rounded-md"
+                    <div 
+                      className="bg-card rounded-lg p-4 border border-border hover:shadow-lg transition-shadow cursor-pointer"
+                      onClick={() => setSelectedImage({ src: "/lovable-uploads/5b37a05b-e6e4-4783-b789-b761fb1fe0ac.png", title: "Monthly Charges Distribution" })}
+                    >
+                      <img 
+                        src="/lovable-uploads/5b37a05b-e6e4-4783-b789-b761fb1fe0ac.png" 
+                        alt="Monthly Charges Churning Density" 
+                        className="w-full h-auto rounded-md hover:scale-110 transition-transform duration-300"
                       />
                       <p className="text-sm text-muted-foreground mt-2 text-center font-medium">Monthly Charges Distribution</p>
                     </div>
@@ -569,27 +553,36 @@ const ChurnPredictionForm = () => {
                     These charts reveal relationships between categorical variables and customer churn patterns by gender.
                   </p>
                   <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    <div className="bg-card rounded-lg p-4 border border-border hover:shadow-lg transition-shadow">
-                      <img
-                        src="/lovable-uploads/c97ea5f2-2b7f-40d6-81fc-831dd0fd178f.png"
-                        alt="Contract Distribution for Churned Customers"
-                        className="w-full h-auto rounded-md"
+                    <div 
+                      className="bg-card rounded-lg p-4 border border-border hover:shadow-lg transition-shadow cursor-pointer"
+                      onClick={() => setSelectedImage({ src: "/lovable-uploads/c97ea5f2-2b7f-40d6-81fc-831dd0fd178f.png", title: "Contract vs Churn" })}
+                    >
+                      <img 
+                        src="/lovable-uploads/c97ea5f2-2b7f-40d6-81fc-831dd0fd178f.png" 
+                        alt="Contract Distribution for Churned Customers" 
+                        className="w-full h-auto rounded-md hover:scale-110 transition-transform duration-300"
                       />
                       <p className="text-sm text-muted-foreground mt-2 text-center font-medium">Contract vs Churn</p>
                     </div>
-                    <div className="bg-card rounded-lg p-4 border border-border hover:shadow-lg transition-shadow">
-                      <img
-                        src="/lovable-uploads/b45b5fa4-946a-46fd-9c55-1af37c8717ac.png"
-                        alt="Payment Method Distribution for Churned Customers"
-                        className="w-full h-auto rounded-md"
+                    <div 
+                      className="bg-card rounded-lg p-4 border border-border hover:shadow-lg transition-shadow cursor-pointer"
+                      onClick={() => setSelectedImage({ src: "/lovable-uploads/b45b5fa4-946a-46fd-9c55-1af37c8717ac.png", title: "Payment Method vs Churn" })}
+                    >
+                      <img 
+                        src="/lovable-uploads/b45b5fa4-946a-46fd-9c55-1af37c8717ac.png" 
+                        alt="Payment Method Distribution for Churned Customers" 
+                        className="w-full h-auto rounded-md hover:scale-110 transition-transform duration-300"
                       />
                       <p className="text-sm text-muted-foreground mt-2 text-center font-medium">Payment Method vs Churn</p>
                     </div>
-                    <div className="bg-card rounded-lg p-4 border border-border hover:shadow-lg transition-shadow">
-                      <img
-                        src="/lovable-uploads/0e34a388-e466-42a6-85cb-5a2950117390.png"
-                        alt="Senior Citizen Distribution for Churned Customers"
-                        className="w-full h-auto rounded-md"
+                    <div 
+                      className="bg-card rounded-lg p-4 border border-border hover:shadow-lg transition-shadow cursor-pointer"
+                      onClick={() => setSelectedImage({ src: "/lovable-uploads/0e34a388-e466-42a6-85cb-5a2950117390.png", title: "Senior Citizen vs Churn" })}
+                    >
+                      <img 
+                        src="/lovable-uploads/0e34a388-e466-42a6-85cb-5a2950117390.png" 
+                        alt="Senior Citizen Distribution for Churned Customers" 
+                        className="w-full h-auto rounded-md hover:scale-110 transition-transform duration-300"
                       />
                       <p className="text-sm text-muted-foreground mt-2 text-center font-medium">Senior Citizen vs Churn</p>
                     </div>
@@ -599,6 +592,44 @@ const ChurnPredictionForm = () => {
             </Card>
           </div>
         )}
+
+        {/* About This Model Section - Moved to the bottom */}
+        {prediction && (
+          <div className="mt-8 animate-fade-in">
+            <Card className="shadow-card">
+              <CardHeader>
+                <CardTitle className="text-lg text-foreground">About This Model</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3 text-sm text-muted-foreground">
+                <p>This machine learning model analyzes customer behavior patterns to predict churn probability.</p>
+                <ul className="space-y-1 ml-4">
+                  <li>• Trained on telecommunication industry data</li>
+                  <li>• 95%+ accuracy in churn prediction</li>
+                  <li>• Real-time analysis and insights</li>
+                  <li>• Identifies key risk factors</li>
+                </ul>
+              </CardContent>
+            </Card>
+          </div>
+        )}
+
+        {/* Image Modal */}
+        <Dialog open={!!selectedImage} onOpenChange={() => setSelectedImage(null)}>
+          <DialogContent className="max-w-4xl">
+            <DialogHeader>
+              <DialogTitle>{selectedImage?.title}</DialogTitle>
+            </DialogHeader>
+            {selectedImage && (
+              <div className="flex justify-center">
+                <img
+                  src={selectedImage.src}
+                  alt={selectedImage.title}
+                  className="max-w-full h-auto rounded-lg"
+                />
+              </div>
+            )}
+          </DialogContent>
+        </Dialog>
       </div>
     </div>
   );
