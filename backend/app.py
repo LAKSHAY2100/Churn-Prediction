@@ -4,7 +4,7 @@ import pandas as pd
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier
 from sklearn import metrics
-from flask import Flask, request, render_template
+from flask import Flask, request
 import pickle
 from flask_cors import CORS
 import os
