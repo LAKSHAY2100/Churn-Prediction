@@ -14,18 +14,31 @@ CORS(app)
 
 
 sagemaker_runtime = boto3.client('sagemaker-runtime', region_name='ap-south-1')
-endpoint_name = 'Custom-sklearn-model-2025-07-16-18-37-53'
-
-COLUMNS_PATH = "model/Churn_model_columns.pkl"
+endpoint_name = 'Custom-sklearn-model-2025-07-17-07-33-48'
 
 # Load model columns at startup
-if os.path.exists(COLUMNS_PATH):
-    with open(COLUMNS_PATH, 'rb') as f:
-        MODEL_COLUMNS = pickle.load(f)
-else:
-    MODEL_COLUMNS = None
+MODEL_COLUMNS = ['SeniorCitizen', 'MonthlyCharges', 'TotalCharges', 'gender_Female',
+       'gender_Male', 'Partner_No', 'Partner_Yes', 'Dependents_No',
+       'Dependents_Yes', 'PhoneService_No', 'PhoneService_Yes',
+       'MultipleLines_No', 'MultipleLines_No phone service',
+       'MultipleLines_Yes', 'InternetService_DSL',
+       'InternetService_Fiber optic', 'InternetService_No',
+       'OnlineSecurity_No', 'OnlineSecurity_No internet service',
+       'OnlineSecurity_Yes', 'OnlineBackup_No',
+       'OnlineBackup_No internet service', 'OnlineBackup_Yes',
+       'DeviceProtection_No', 'DeviceProtection_No internet service',
+       'DeviceProtection_Yes', 'TechSupport_No',
+       'TechSupport_No internet service', 'TechSupport_Yes', 'StreamingTV_No',
+       'StreamingTV_No internet service', 'StreamingTV_Yes',
+       'StreamingMovies_No', 'StreamingMovies_No internet service',
+       'StreamingMovies_Yes', 'Contract_Month-to-month', 'Contract_One year',
+       'Contract_Two year', 'PaperlessBilling_No', 'PaperlessBilling_Yes',
+       'PaymentMethod_Bank transfer (automatic)',
+       'PaymentMethod_Credit card (automatic)',
+       'PaymentMethod_Electronic check', 'PaymentMethod_Mailed check',
+       'tenure_group_1 - 12', 'tenure_group_13 - 24', 'tenure_group_25 - 36',
+       'tenure_group_37 - 48', 'tenure_group_49 - 60', 'tenure_group_61 - 72']
 
-df_1 = pd.read_csv("Data_analysis/first_telc.csv")
 
 @app.route("/")
 def index():
@@ -66,8 +79,7 @@ def api_predict():
                                                  'OnlineSecurity', 'OnlineBackup', 'DeviceProtection', 'TechSupport',
                                                  'StreamingTV', 'StreamingMovies', 'Contract', 'PaperlessBilling',
                                                  'PaymentMethod', 'tenure'])
-    df_2 = pd.concat([df_1, new_df], ignore_index=True)
-
+    df_2=new_df
     labels = ["{0} - {1}".format(i, i + 11) for i in range(1, 72, 12)]
 
     df_2['tenure_group'] = pd.cut(df_2.tenure.astype(int), range(1, 80, 12), right=False, labels=labels)
@@ -80,9 +92,7 @@ def api_predict():
                                            'Contract', 'PaperlessBilling', 'PaymentMethod', 'tenure_group']])
     # Remove duplicate columns if any
     new_df__dummies = new_df__dummies.loc[:,~new_df__dummies.columns.duplicated()]
-    if MODEL_COLUMNS is not None:
-        new_df__dummies = new_df__dummies.reindex(
-            columns=MODEL_COLUMNS, fill_value=0)
+    new_df__dummies = new_df__dummies.reindex(columns=MODEL_COLUMNS, fill_value=0)
     
     # vvv impp
     new_df__dummies['SeniorCitizen'] = int(input_data[0])
